@@ -12,37 +12,39 @@ public class Add implements SimpleRenderer.Obj {
     private float x, y, z;
 
     public Add(float s, float x, float y, float z) {
+        float m = s/2;
+        float n = s/4;
         float[] vertices = {
                 // left
                 -s, -s, -s,
-                -s, -s, s,
-                -s, s, -s,
-                -s, s, s,
+                -s, -s,  s,
+                -s,  s, -s,
+                -s,  s,  s,
                 // right
-                s, -s, -s,
-                s, -s, s,
-                s, s, -s,
-                s, s, s,
+                 s, -s, -s,
+                 s, -s,  s,
+                 s,  s, -s,
+                 s,  s,  s,
                 // bottom
                 -s, -s, -s,
-                s, -s, -s,
-                -s, -s, s,
-                s, -s, s,
+                 s, -s, -s,
+                -s, -s,  s,
+                 s, -s,  s,
                 // top
-                -s, s, -s,
-                s, s, -s,
-                -s, s, s,
-                s, s, s,
+                -s,  s, -s,
+                 s,  s, -s,
+                -s,  s,  s,
+                 s,  s,  s,
                 // back
                 -s, -s, -s,
-                -s, s, -s,
-                s, -s, -s,
-                s, s, -s,
+                -s,  s, -s,
+                 s, -s, -s,
+                 s,  s, -s,
                 // front
-                -s, -s, s,
-                -s, s, s,
-                s, -s, s,
-                s, s, s
+                -s, -s,  s,
+                -s,  s,  s,
+                 s, -s,  s,
+                 s,  s,  s
         };
         vbuf = ByteBuffer.allocateDirect(vertices.length * 4)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();

@@ -4,22 +4,16 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
-
 
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.Locale;
-
 
 public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, SensorEventListener {
     private final static String TAG = "MainActivity";
@@ -28,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     private SimpleRenderer renderer;
     private SeekBar rotationBarX, rotationBarY, rotationBarZ;
     private TextView accuracyView;
+    private int flg = 0;
 
     private SensorManager sensorMgr;
     private Sensor gravitymeter;
@@ -35,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     private float v;
     private long prevts;
 
-    private final static float alpha = 0.95F;
+    private final static float alpha = 0.75F;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,14 +48,20 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
         renderer = new SimpleRenderer();
         renderer.addObj(new Cube   (0.5f, 0, 0.2f, -3));
-        renderer.addObj(new Pyramid(0.5f, 0, 0, 0));
-        renderer.addObj(new Add    (1, 1, 1, 1));
+        renderer.addObj(new Pyramid(0.5f, -1, 0, 0));
+        renderer.addObj(new Add    (0.2f, 1, 1, 1));
         glView.setRenderer(renderer);
 
 
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
         /* init sensors */
         gravitymeter  = sensorMgr.getDefaultSensor(Sensor.TYPE_GRAVITY);
+
+        Button btClick = (Button) findViewById(R.id.btClick);
+        HelloListener listener = new HelloListener();
+        btClick.setOnClickListener(listener);
+
+
     }
 
     @Override
@@ -82,12 +83,15 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if      (seekBar == rotationBarX)
-            renderer.setRotationX(progress);
-        else if (seekBar == rotationBarY)
-            renderer.setRotationY(progress);
-        else if (seekBar == rotationBarZ)
-            renderer.setRotationZ(progress);
+        if (flg == 0) {
+            if (seekBar == rotationBarX)
+                renderer.setRotationX(progress);
+            else if (seekBar == rotationBarY)
+                renderer.setRotationY(progress);
+            else if (seekBar == rotationBarZ)
+                renderer.setRotationZ(progress);
+
+        }
     }
 
     @Override
@@ -102,19 +106,33 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
     @Override
-    public void onSensorChanged(SensorEvent event) {
-
+    public void onSensorChanged(SensorEvent event){
         switch(event.sensor.getType()){
             case Sensor.TYPE_GRAVITY:
                 v = alpha * v + (1-alpha)* event.values[0];
-                renderer.setRotationX(v);
-                renderer.setRotationY(v);
-                renderer.setRotationZ(v);
+                float ax = v * 5.5f;
+                float ay = v * 7.7f;
+                float az = v * 9.9f;
+                if(flg == 1) {
+                    renderer.setRotationX(ax);
+                    renderer.setRotationY(ay);
+                    renderer.setRotationZ(az);
+                }
                 break;
 
         }
         prevts = event.timestamp;
         return;
+    }
+
+    /**
+     * ボタンをクリックしたときのリスナクラス。
+     */
+    private class HelloListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            flg = 1;
+        }
     }
 
 
