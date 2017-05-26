@@ -15,25 +15,29 @@ public class Pyramid implements SimpleRenderer.Obj {
         float[] vertices = {
                 // bottom
                 -s, 0, -s,
-                s, 0, -s,
-                -s, 0, s,
-                s, 0, s,
+                 s, 0, -s,
+                -s, 0,  s,
+                 s, 0,  s,
+
                 // left
                 -s, 0, -s,
-                0, s, 0,
-                -s, 0, s,
+                 0, s,  0,
+                -s, 0,  s,
+
                 // right
                 s, 0, -s,
-                0, s, 0,
-                s, 0, s,
+                0, s,  0,
+                s, 0,  s,
+
                 // back
                 -s, 0, -s,
-                0, s, 0,
-                s, 0, -s,
+                 0, s,  0,
+                 s, 0, -s,
+
                 // front
                 -s, 0, s,
-                0, s, 0,
-                s, 0, s
+                 0, s, 0,
+                 s, 0, s
         };
         vbuf = ByteBuffer.allocateDirect(vertices.length * 4)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();

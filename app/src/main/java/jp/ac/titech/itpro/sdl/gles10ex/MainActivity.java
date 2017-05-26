@@ -7,12 +7,35 @@ import android.util.Log;
 import android.widget.SeekBar;
 
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+import android.app.Activity;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Locale;
+
+
+public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, SensorEventListener {
     private final static String TAG = "MainActivity";
 
     private GLSurfaceView glView;
     private SimpleRenderer renderer;
     private SeekBar rotationBarX, rotationBarY, rotationBarZ;
+    private TextView accuracyView;
+
+    private SensorManager sensorMgr;
+    private Sensor gravitymeter;
+
+    private float v;
+    private long prevts;
+
+    private final static float alpha = 0.95F;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +52,15 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         rotationBarZ.setOnSeekBarChangeListener(this);
 
         renderer = new SimpleRenderer();
-        renderer.addObj(new Cube(0.5f, 0, 0.2f, -3));
+        renderer.addObj(new Cube   (0.5f, 0, 0.2f, -3));
         renderer.addObj(new Pyramid(0.5f, 0, 0, 0));
+        renderer.addObj(new Add    (1, 1, 1, 1));
         glView.setRenderer(renderer);
+
+
+        sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
+        /* init sensors */
+        gravitymeter  = sensorMgr.getDefaultSensor(Sensor.TYPE_GRAVITY);
     }
 
     @Override
@@ -39,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         super.onResume();
         Log.d(TAG, "onResume");
         glView.onResume();
+        sensorMgr.registerListener(this, gravitymeter, SensorManager.SENSOR_DELAY_FASTEST);
+
     }
 
     @Override
@@ -46,11 +77,12 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         super.onPause();
         Log.d(TAG, "onPause");
         glView.onPause();
+        sensorMgr.unregisterListener(this);
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (seekBar == rotationBarX)
+        if      (seekBar == rotationBarX)
             renderer.setRotationX(progress);
         else if (seekBar == rotationBarY)
             renderer.setRotationY(progress);
@@ -65,5 +97,26 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
     }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+        switch(event.sensor.getType()){
+            case Sensor.TYPE_GRAVITY:
+                v = alpha * v + (1-alpha)* event.values[0];
+                renderer.setRotationX(v);
+                renderer.setRotationY(v);
+                renderer.setRotationZ(v);
+                break;
+
+        }
+        prevts = event.timestamp;
+        return;
+    }
+
+
 
 }
